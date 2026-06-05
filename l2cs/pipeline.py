@@ -87,7 +87,11 @@ class Pipeline:
                     scores.append(score)
 
                 # Predict gaze
-                pitch, yaw = self.predict_gaze(np.stack(face_imgs))
+                if len(face_imgs) > 0:
+                    yaw, pitch = self.predict_gaze(np.stack(face_imgs))
+                else:
+                    pitch = np.empty((0, 1))
+                    yaw = np.empty((0, 1))
 
             else:
 
@@ -95,15 +99,24 @@ class Pipeline:
                 yaw = np.empty((0,1))
 
         else:
-            pitch, yaw = self.predict_gaze(frame)
+            yaw, pitch = self.predict_gaze(frame)
+
+        if len(bboxes) > 0:
+            bboxes = np.stack(bboxes)
+            landmarks = np.stack(landmarks)
+            scores = np.stack(scores)
+        else:
+            bboxes = np.empty((0, 4), dtype=np.float32)
+            landmarks = np.empty((0, 5, 2), dtype=np.float32)
+            scores = np.empty((0,), dtype=np.float32)
 
         # Save data
         results = GazeResultContainer(
             pitch=pitch,
             yaw=yaw,
-            bboxes=np.stack(bboxes),
-            landmarks=np.stack(landmarks),
-            scores=np.stack(scores)
+            bboxes=bboxes,
+            landmarks=landmarks,
+            scores=scores
         )
 
         return results
@@ -119,9 +132,10 @@ class Pipeline:
             raise RuntimeError("Invalid dtype for input")
     
         # Predict 
-        gaze_pitch, gaze_yaw = self.model(img)
-        pitch_predicted = self.softmax(gaze_pitch)
+        # yaw pitch
+        gaze_yaw, gaze_pitch = self.model(img)
         yaw_predicted = self.softmax(gaze_yaw)
+        pitch_predicted = self.softmax(gaze_pitch)
         
         # Get continuous predictions in degrees.
         pitch_predicted = torch.sum(pitch_predicted.data * self.idx_tensor, dim=1) * 4 - 180
@@ -130,4 +144,4 @@ class Pipeline:
         pitch_predicted= pitch_predicted.cpu().detach().numpy()* np.pi/180.0
         yaw_predicted= yaw_predicted.cpu().detach().numpy()* np.pi/180.0
 
-        return pitch_predicted, yaw_predicted
+        return yaw_predicted, pitch_predicted
