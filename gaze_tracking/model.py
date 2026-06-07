@@ -407,8 +407,22 @@ class EyeModel:
         self.dir = directory
 
     def get_crop_image(self, image, box):
-        xmin, ymin, xmax, ymax = box
+        if image is None or image.size == 0 or box is None:
+            return np.array([])
+
+        xmin, ymin, xmax, ymax = [int(v) for v in box]
+        h, w = image.shape[:2]
+        xmin = max(0, min(xmin, w))
+        xmax = max(0, min(xmax, w))
+        ymin = max(0, min(ymin, h))
+        ymax = max(0, min(ymax, h))
+
+        if xmax <= xmin or ymax <= ymin:
+            return np.array([])
+
         crop_image = image[ymin:ymax, xmin:xmax]
+        if crop_image is None or crop_image.size == 0:
+            return np.array([])
         return crop_image
 
     def draw_gaze_point(self, image, gaze_x, gaze_y):
@@ -439,6 +453,9 @@ class EyeModel:
             eye_boxes, eye_centers = self.facial_landmark_detection.predict(face)
             # get eye images
             right_eye_image, left_eye_image = [self.get_crop_image(face, eye_box) for eye_box in eye_boxes]
+            if (right_eye_image is None or right_eye_image.size == 0 or
+                    left_eye_image is None or left_eye_image.size == 0):
+                continue
             eye_pairs.append((right_eye_image, left_eye_image, eye_centers))
         return eye_pairs
 
@@ -482,6 +499,10 @@ class EyeModel:
             eye_boxes, eye_centers = self.facial_landmark_detection.predict(face)
             """ get eye images """
             right_eye_image, left_eye_image = [self.get_crop_image(face, eye_box) for eye_box in eye_boxes]
+            if (right_eye_image is None or right_eye_image.size == 0 or
+                    left_eye_image is None or left_eye_image.size == 0):
+                print("Skipped empty eye crop")
+                continue
             """ Optical flow """
             # right_flow = self._OpticalFlow(self.right_eye_prev, right_eye_image)
             # left_flow = self._OpticalFlow(self.left_eye_prev, left_eye_image)
@@ -537,6 +558,8 @@ class EyeModel:
                 print("Warning: More than one face detected! Using first face detected!")
             face_box = face_boxes[0]
             face = self.get_crop_image(frame, face_box)
+            if face is None or face.size == 0:
+                return np.zeros((3, 35))
             landmarks = self.facial_landmark_35.predict(face)   # shape 35,2
         
             xmin, ymin, xmax, ymax = face_box

@@ -151,12 +151,13 @@ class GazeToPoint:
                 except StopIteration:
                     break
                 if not ret or frame is None:
-                    print("Video stream ended")
+                    print("视频流结束")
                     break
 
-                # gray_image, prediction, morphedMask, falseColor, centroid = model.get_iris_Cnn(frame)
-                # Undistort the image
-                # frame = cv2.undistort(frame, self.camera_matrix, self.dist_coeffs)
+                if frame.size == 0:
+                    print(f"帧 {frame_idx} 为空或读取失败，跳过")
+                    frame_idx += 1
+                    continue
                 gaze_result = gaze_pipeline.step(frame)
 
                 pitch = float(gaze_result.pitch[0]) if getattr(gaze_result, "pitch", None) is not None and len(gaze_result.pitch) else np.nan

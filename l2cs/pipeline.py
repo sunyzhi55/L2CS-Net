@@ -74,9 +74,20 @@ class Pipeline:
                         y_min = 0
                     x_max=int(box[2])
                     y_max=int(box[3])
+
+                    # Skip invalid or empty crops before resizing.
+                    h, w = frame.shape[:2]
+                    x_min = min(max(x_min, 0), w)
+                    y_min = min(max(y_min, 0), h)
+                    x_max = min(max(x_max, 0), w)
+                    y_max = min(max(y_max, 0), h)
+                    if x_max <= x_min or y_max <= y_min:
+                        continue
                     
                     # Crop image
                     img = frame[y_min:y_max, x_min:x_max]
+                    if img is None or img.size == 0:
+                        continue
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     img = cv2.resize(img, (224, 224))
                     face_imgs.append(img)
