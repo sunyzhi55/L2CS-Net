@@ -144,8 +144,8 @@ def process_subject(subject_dir, output_dir, base_args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_root", default="/data3/wangchangmiao/shenxy/Code/gaze/Data2", help="数据集根目录")
-    parser.add_argument("--output_dir", default="/data3/wangchangmiao/shenxy/Code/gaze/DataOutput", help="输出目录")
+    parser.add_argument("--data_root", default="/data3/wangchangmiao/shenxy/Code/gaze/FatigueGuardData/Data", help="数据集根目录")
+    parser.add_argument("--output_dir", default="/data3/wangchangmiao/shenxy/Code/gaze/FatigueGuardData/Data0620", help="输出目录")
     parser.add_argument("--device", default="cpu", help="设备")
     parser.add_argument("--weights", default="models/L2CSNet_gaze360.pkl")
     parser.add_argument("--arch", default="ResNet50")

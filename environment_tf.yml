@@ -1,4 +1,4 @@
-name: /data/home/wangchangmiao/cxy/neuro-3D/.conda_envs/tf_cali
+name: tf_calibrate
 channels:
   - defaults
   - https://repo.anaconda.com/pkgs/main

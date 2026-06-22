@@ -207,7 +207,12 @@ def _infer_task(record: Dict[str, Any], source_path: Path) -> str:
     raise ValueError(f"Cannot infer task type for {source_path}")
 
 
-def _format_easy_record(record: Dict[str, Any], calibrated_xy: Optional[Sequence[float]]) -> Dict[str, Any]:
+def _format_easy_record(
+    record: Dict[str, Any],
+    calibrated_xy: Optional[Sequence[float]],
+    before: Optional[float],
+    after: Optional[float],
+) -> Dict[str, Any]:
     output = OrderedDict()
     output["timestamp"] = record.get("timestamp")
     output["frame_idx"] = record.get("frame_idx")
@@ -217,13 +222,22 @@ def _format_easy_record(record: Dict[str, Any], calibrated_xy: Optional[Sequence
     output["gaze_screen_xy_px"] = record.get("gaze_screen_xy_px")
     output["gaze_screen_tf_calibrate_xy_px"] = _point_to_json(calibrated_xy)
     output["target_xy_px"] = record.get("target_xy_px")
-    output["bbox"] = record.get("bbox")
-    output["landmarks"] = record.get("landmarks")
+    output["deviation_px_before_calibrate"] = before
+    output["deviation_px_after_calibrate"] = after
+    output["face_detection_bbox"] = record.get("face_detection_bbox")
+    output["facial_landmark_35"] = record.get("facial_landmark_35")
+    output["RetinaFace_bbox"] = record.get("RetinaFace_bbox")
+    output["RetinaFace_landmarks"] = record.get("RetinaFace_landmarks")
     output["confidence"] = record.get("confidence")
     return output
 
 
-def _format_hard_record(record: Dict[str, Any], calibrated_xy: Optional[Sequence[float]]) -> Dict[str, Any]:
+def _format_hard_record(
+    record: Dict[str, Any],
+    calibrated_xy: Optional[Sequence[float]],
+    before: Optional[float],
+    after: Optional[float],
+) -> Dict[str, Any]:
     output = OrderedDict()
     output["timestamp"] = record.get("timestamp")
     output["frame_idx"] = record.get("frame_idx")
@@ -233,8 +247,12 @@ def _format_hard_record(record: Dict[str, Any], calibrated_xy: Optional[Sequence
     output["gaze_screen_xy_px"] = record.get("gaze_screen_xy_px")
     output["gaze_screen_tf_calibrate_xy_px"] = _point_to_json(calibrated_xy)
     output["target_centers_xy_px"] = record.get("target_centers_xy_px")
-    output["bbox"] = record.get("bbox")
-    output["landmarks"] = record.get("landmarks")
+    output["deviation_px_before_calibrate"] = before
+    output["deviation_px_after_calibrate"] = after
+    output["face_detection_bbox"] = record.get("face_detection_bbox")
+    output["facial_landmark_35"] = record.get("facial_landmark_35")
+    output["RetinaFace_bbox"] = record.get("RetinaFace_bbox")
+    output["RetinaFace_landmarks"] = record.get("RetinaFace_landmarks")
     output["confidence"] = record.get("confidence")
     return output
 
@@ -288,10 +306,10 @@ def _calibrate_records(
         calibrated_xy = calibrated_map.get(idx)
         if task == "easy":
             before, after = _process_easy_record(record, calibrated_xy)
-            output_records.append(_format_easy_record(record, calibrated_xy))
+            output_records.append(_format_easy_record(record, calibrated_xy, before, after))
         else:
             before, after = _process_hard_record(record, calibrated_xy)
-            output_records.append(_format_hard_record(record, calibrated_xy))
+            output_records.append(_format_hard_record(record, calibrated_xy, before, after))
         stats.update(before, after)
 
     return output_records, stats

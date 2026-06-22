@@ -111,13 +111,26 @@ class GazeToPoint:
             except Exception:
                 landmarks = None
 
-        if bbox is None and getattr(gaze_result, "bboxes", None) is not None and len(gaze_result.bboxes):
-            bbox = [float(v) for v in np.asarray(gaze_result.bboxes[0]).reshape(-1).tolist()]
+        ### 兼容旧版数据结构
+        # 当前使用model.face_detection得到的bbox和model.facial_landmark_35得到的landmarks
+        print(f"model.face_detection: {bbox}, landmarks: {landmarks}")
+        # 原始的gaze_result中可能包含bboxes和landmarks字段，优先使用这些字段，如果没有再使用上面提取的bbox和landmarks
+        print(f"GazeResultContainer bboxes: {_to_jsonable(gaze_result.bboxes[0])}, landmarks: {_to_jsonable(gaze_result.landmarks[0])}")
 
-        if landmarks is None and getattr(gaze_result, "landmarks", None) is not None and len(gaze_result.landmarks):
-            landmarks = _to_jsonable(np.asarray(gaze_result.landmarks[0]))
 
-        return bbox, landmarks
+        # if bbox is None and getattr(gaze_result, "bboxes", None) is not None and len(gaze_result.bboxes):
+        #     bbox = [float(v) for v in np.asarray(gaze_result.bboxes[0]).reshape(-1).tolist()]
+
+        # if landmarks is None and getattr(gaze_result, "landmarks", None) is not None and len(gaze_result.landmarks):
+        #     landmarks = _to_jsonable(np.asarray(gaze_result.landmarks[0]))
+        
+        face_features = {
+            "face_detection_bbox": bbox,
+            "facial_landmark_35": landmarks,
+            "RetinaFace_bbox": _to_jsonable(gaze_result.bboxes[0]) if getattr(gaze_result, "bboxes", None) is not None and len(gaze_result.bboxes) else None,
+            "RetinaFace_landmarks": _to_jsonable(gaze_result.landmarks[0]) if getattr(gaze_result, "landmarks", None) is not None and len(gaze_result.landmarks) else None,
+        }
+        return face_features
 
     def RunGazeOnScreen(self, model, cap, sfm=False):
         """ Present different trajectories on screen and record gaze
@@ -164,7 +177,7 @@ class GazeToPoint:
                 yaw = float(gaze_result.yaw[0]) if getattr(gaze_result, "yaw", None) is not None and len(gaze_result.yaw) else np.nan
                 confidence = float(gaze_result.scores[0]) if getattr(gaze_result, "scores", None) is not None and len(gaze_result.scores) else np.nan
 
-                bbox, landmarks = self._extract_face_features(model, frame, gaze_result)
+                face_features = self._extract_face_features(model, frame, gaze_result)
 
                 if np.isfinite(pitch) and np.isfinite(yaw):
                     gaze = pitch_yaw_to_gaze_vector(pitch, yaw)
@@ -211,8 +224,10 @@ class GazeToPoint:
                         float(FSgaze[1]) if np.isfinite(FSgaze[1]) else np.nan,
                     ],
                     "gaze_screen_xy_px": [x_px, y_px],
-                    "bbox": bbox,
-                    "landmarks": landmarks,
+                    "face_detection_bbox": face_features["face_detection_bbox"], # model.face_detection得到的bbox
+                    "facial_landmark_35": face_features["facial_landmark_35"], # model.facial_landmark_35得到的landmarks
+                    "RetinaFace_bbox": face_features["RetinaFace_bbox"],          # l2cs 网络输出的结果
+                    "RetinaFace_landmarks": face_features["RetinaFace_landmarks"], # l2cs 网络输出的结果
                     "confidence": confidence,
                 }
                 if frame_idx != 0:  # 只有不是第一帧时才写入文件

@@ -102,13 +102,15 @@ FatigueGuard-Preprocess/
 校准后会输出新的 `jsonl`，其中额外加入字段：
 
 - `gaze_screen_tf_calibrate_xy_px`
+- `deviation_px_before_calibrate`
+- `deviation_px_after_calibrate`
 
 同时脚本会在终端打印：
 
 - 校准前平均误差
 - 校准后平均误差
 
-不会把误差写入文件。
+每一帧的校准前/后误差也会写入对应的 `jsonl` 记录中。`deviation_px_before_calibrate` 和 `deviation_px_after_calibrate` 均为像素欧氏距离；hard 任务会取估计点到 `target_centers_xy_px` 中最近目标点的距离。
 
 ## 4 输出格式
 
@@ -124,8 +126,10 @@ FatigueGuard-Preprocess/
   "gaze_xyz": [0.01, -0.03, 0.99],
   "gaze_screen_xy_mm": [315.2, 182.1],
   "gaze_screen_xy_px": [1345, 702],
-  "bbox": [412, 216, 871, 799],
-  "landmarks": [[520.0, 311.0], [541.0, 320.0]],
+  "face_detection_bbox": [412, 216, 871, 799],
+  "facial_landmark_35": [[520.0, 311.0], [541.0, 320.0]],
+  "RetinaFace_bbox": [412, 216, 871, 799],
+  "RetinaFace_landmarks": [[520.0, 311.0], [541.0, 320.0]],
   "confidence": 0.998,
   "target_xy_px": [1280, 720]
 }
@@ -143,8 +147,12 @@ FatigueGuard-Preprocess/
   "gaze_screen_xy_px": [1345, 702],
   "gaze_screen_tf_calibrate_xy_px": [1268.4, 713.2],
   "target_xy_px": [1280, 720],
-  "bbox": [412, 216, 871, 799],
-  "landmarks": [[520.0, 311.0], [541.0, 320.0]],
+  "deviation_px_before_calibrate": 65.35,
+  "deviation_px_after_calibrate": 13.19,
+  "face_detection_bbox": [412, 216, 871, 799],
+  "facial_landmark_35": [[520.0, 311.0], [541.0, 320.0]],
+  "RetinaFace_bbox": [412, 216, 871, 799],
+  "RetinaFace_landmarks": [[520.0, 311.0], [541.0, 320.0]],
   "confidence": 0.998
 }
 ```
@@ -161,8 +169,10 @@ FatigueGuard-Preprocess/
   "gaze_xyz": [0.01, -0.03, 0.99],
   "gaze_screen_xy_mm": [315.2, 182.1],
   "gaze_screen_xy_px": [1345, 702],
-  "bbox": [412, 216, 871, 799],
-  "landmarks": [[520.0, 311.0], [541.0, 320.0]],
+  "face_detection_bbox": [412, 216, 871, 799],
+  "facial_landmark_35": [[520.0, 311.0], [541.0, 320.0]],
+  "RetinaFace_bbox": [412, 216, 871, 799],
+  "RetinaFace_landmarks": [[520.0, 311.0], [541.0, 320.0]],
   "confidence": 0.998,
   "target_centers_xy_px": [[1280, 720], [960, 540]]
 }
@@ -180,8 +190,12 @@ FatigueGuard-Preprocess/
   "gaze_screen_xy_px": [1345, 702],
   "gaze_screen_tf_calibrate_xy_px": [1268.4, 713.2],
   "target_centers_xy_px": [[1280, 720], [960, 540]],
-  "bbox": [412, 216, 871, 799],
-  "landmarks": [[520.0, 311.0], [541.0, 320.0]],
+  "deviation_px_before_calibrate": 67.12,
+  "deviation_px_after_calibrate": 13.70,
+  "face_detection_bbox": [412, 216, 871, 799],
+  "facial_landmark_35": [[520.0, 311.0], [541.0, 320.0]],
+  "RetinaFace_bbox": [412, 216, 871, 799],
+  "RetinaFace_landmarks": [[520.0, 311.0], [541.0, 320.0]],
   "confidence": 0.998
 }
 ```
@@ -249,6 +263,7 @@ python FatigueGuard_preprocess_batch.py --data_root D:/data/FatigueGuard --outpu
 - 读取第二步的 `jsonl`
 - 用 `tf_calibrate_model/gaze_calibration_model.ckpt` 做推理校准
 - 生成新的校准后 `jsonl`
+- 在每帧记录中写入校准前/后的像素误差
 - 打印校准前后的平均误差
 
 常用参数：
@@ -368,13 +383,15 @@ DataRoot/
 推荐使用 `environment.yml` 创建环境：
 
 ```bash
-conda env create -f environment.yml -n fatigueguard
+conda create -n fatigueguard python=3.9
+conda activate fatigueguard
+pip install -r requirements.txt
 ```
 ### 8.2 第三步
 依赖 TensorFlow 1.x 和相关库，推荐使用 `tf_calibrate_environment.yml` 创建环境：
 
 ```bash
-conda env create -f tf_calibrate_environment.yml -n fatigueguard_tf_calibrate
+conda env create -f environment_tf.yml
 ```
 
 ## 9 模型资源
@@ -481,4 +498,3 @@ OpenCV ... error: (-215:Assertion failed) !ssize.empty() in function 'resize'
 
 - 每个输出字段的严格数学定义
 - 校准模型的训练过程和数据组织方式
-
