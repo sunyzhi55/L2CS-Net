@@ -11,6 +11,12 @@ calibration.
 
 from __future__ import annotations
 
+import sys, os as _os
+_SCRIPT_DIR = _os.path.dirname(_os.path.abspath(__file__))
+_PROJ_ROOT = _os.path.dirname(_SCRIPT_DIR)
+sys.path.insert(0, _PROJ_ROOT)
+sys.path.insert(0, _SCRIPT_DIR)
+
 import argparse
 import json
 import math
@@ -329,8 +335,8 @@ def _output_path_for(source_file: Path, input_root: Path, output_root: Path) -> 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Apply TF calibration to FatigueGuard JSONL files.")
-    parser.add_argument("--input_path", default="/data3/wangchangmiao/shenxy/Code/gaze/DataOutput1", help="Input JSONL file or directory.")
-    parser.add_argument("--output_dir", default="/data3/wangchangmiao/shenxy/Code/gaze/CalibratedData", help="Directory for calibrated JSONL files.")
+    parser.add_argument("--input_path", default="/root/autodl-tmp/shenxy/Data/Process0630", help="Input JSONL file or directory.")
+    parser.add_argument("--output_dir", default="/root/autodl-tmp/shenxy/Data/Process0630_tfCali", help="Directory for calibrated JSONL files.")
     parser.add_argument("--model_ckpt", default=str(MODEL_CKPT_DEFAULT), help="TensorFlow checkpoint path.")
     args = parser.parse_args()
 

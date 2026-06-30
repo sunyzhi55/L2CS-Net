@@ -3,7 +3,7 @@
 
 ## 文件说明
 
-已创建 `batch_preprocess.py` 脚本，用于批量处理 FatigueGuard 数据集。
+主批处理脚本为 `scripts/FatigueGuard_preprocess_batch.py`，用于批量处理 FatigueGuard 数据集。
 
 ## 功能特性
 
@@ -90,21 +90,21 @@ Data20260604/
 ### 基本用法
 
 ```bash
-python batch_preprocess.py \
+python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data20260604 \
     --output_dir /path/to/output \
     --device cuda:0 \
     --weights models/L2CSNet_gaze360.pkl
 ```
 
-**注意**: 脚本会自动从 `data_root/camera_data` 读取相机标定数据，所有受试者共享相同的相机标定参数。
+**注意**: 脚本会自动从 `data_root/camera_data` 读取相机标定数据，所有受试者共享相同的相机标定参数。请在**项目根目录**下运行上述命令。
 
 ### 指定 camera_data 路径
 
 如果 `camera_data` 不在数据集根目录下，可以手动指定：
 
 ```bash
-python batch_preprocess.py \
+python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data20260604 \
     --output_dir /path/to/output \
     --camera_data_dir /path/to/camera_data \
@@ -130,7 +130,7 @@ python batch_preprocess.py \
 
 ```bash
 # 只处理受试者 01, 02, 03
-python batch_preprocess.py \
+python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data20260604 \
     --output_dir /path/to/output \
     --subjects 01,02,03 \
@@ -141,7 +141,7 @@ python batch_preprocess.py \
 
 ```bash
 # 处理受试者 01 的所有数据
-python batch_preprocess.py \
+python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data20260604 \
     --output_dir /path/to/output \
     --subjects 01 \
@@ -165,7 +165,7 @@ python batch_preprocess.py \
 
 ```bash
 # 使用 nohup 在后台运行
-nohup python batch_preprocess.py \
+nohup python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data20260604 \
     --output_dir /path/to/output \
     --device cuda:0 \
@@ -244,7 +244,7 @@ Data2/
 
 3. 如果 `camera_data` 在其他位置，使用 `--camera_data_dir` 参数指定：
 ```bash
-python batch_preprocess.py \
+python scripts/FatigueGuard_preprocess_batch.py \
     --data_root /path/to/Data2 \
     --output_dir /path/to/output \
     --camera_data_dir /path/to/camera_data
@@ -270,6 +270,17 @@ ffmpeg -i training_video.mp4
 
 **解决**: 检查特征提取是否成功，查看临时文件是否生成
 
+### 问题：运行脚本时提示模块找不到
+
+**解决**: 所有主要脚本已移至 `scripts/` 目录。请在**项目根目录**下运行：
+```bash
+# 正确
+python scripts/FatigueGuard_preprocess_batch.py --data_root ... --output_dir ...
+
+# 错误
+cd scripts && python FatigueGuard_preprocess_batch.py ...
+```
+
 ## 示例运行日志
 
 ```
@@ -290,6 +301,6 @@ ffmpeg -i training_video.mp4
 ## 联系方式
 
 如有问题，请检查：
-1. `FatigueGuard_preprocess.py` 是否正常工作
+1. `scripts/FatigueGuard_preprocess_single.py` 是否正常工作
 2. 依赖库是否完整安装
 3. 数据集结构是否符合要求

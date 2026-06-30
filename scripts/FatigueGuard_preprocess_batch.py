@@ -3,6 +3,12 @@
 """
 批处理 FatigueGuard 数据集
 """
+import sys, os as _os
+_SCRIPT_DIR = _os.path.dirname(_os.path.abspath(__file__))
+_PROJ_ROOT = _os.path.dirname(_SCRIPT_DIR)
+sys.path.insert(0, _PROJ_ROOT)
+sys.path.insert(0, _SCRIPT_DIR)
+
 import json, numpy as np, cv2, argparse
 from pathlib import Path
 from FatigueGuard_preprocess_single import GazeToPoint
@@ -144,8 +150,8 @@ def process_subject(subject_dir, output_dir, base_args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_root", default="/data3/wangchangmiao/shenxy/Code/gaze/FatigueGuardData/Data", help="数据集根目录")
-    parser.add_argument("--output_dir", default="/data3/wangchangmiao/shenxy/Code/gaze/FatigueGuardData/Data0620", help="输出目录")
+    parser.add_argument("--data_root", default="/root/autodl-tmp/shenxy/Data/DATA", help="数据集根目录")
+    parser.add_argument("--output_dir", default="/root/autodl-tmp/shenxy/Data/Process0630", help="输出目录")
     parser.add_argument("--device", default="cpu", help="设备")
     parser.add_argument("--weights", default="models/L2CSNet_gaze360.pkl")
     parser.add_argument("--arch", default="ResNet50")

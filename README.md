@@ -36,20 +36,28 @@ FatigueGuard 数据集预处理工具，用于把原始视频转成逐帧 `jsonl
 
 ```text
 FatigueGuard-Preprocess/
-├── FatigueGuard_preprocess_single.py   # 单视频预处理
-├── FatigueGuard_preprocess_batch.py    # 数据集批处理
-├── tf_calibrate_jsonl_batch.py         # 第三步：TensorFlow 校准
-├── tf_easy_calibration_by_trained_model.py
-├── tf_hard_calibration_by_trained_model.py
-├── tf_calibrate_model/                 # 预训练校准模型
-├── l2cs/                               # L2CS gaze 推理
-├── gaze_tracking/                      # OpenVINO 人脸/关键点/眼部特征
-├── sfm/                                # 基于两帧关键点的 SFM
-├── utilities/                          # 几何与工具函数
-├── camera_data/                        # 相机标定数据
-├── intel/                              # OpenVINO 模型
-├── models/                             # L2CS 权重
+├── scripts/                                # ★ 主要处理脚本
+│   ├── FatigueGuard_preprocess_single.py   # 单视频预处理（第一步+第二步）
+│   ├── FatigueGuard_preprocess_batch.py    # 数据集批处理
+│   ├── tf_calibrate_jsonl_batch.py         # 第三步：TensorFlow 校准
+│   ├── ext_jsonl_to_screen.py              # 外部 JSONL 屏幕映射
+│   ├── ext_jsonl_tf_calibrate.py           # 外部 JSONL TF 校准
+│   └── draw_gaze_on_video.py              # 注视方向可视化
+├── l2cs/                                   # L2CS gaze 推理
+├── gaze_tracking/                          # OpenVINO 人脸/关键点/眼部特征
+├── sfm/                                    # 基于两帧关键点的 SFM
+├── utilities/                              # 几何与工具函数
+├── camera_data/                            # 相机标定数据
+├── intel/                                  # OpenVINO 模型
+├── models/                                 # L2CS 权重
+├── tf_calibrate_model/                     # 预训练校准模型
+├── demo.py                                 # L2CS 推理演示脚本
+├── train.py                                # L2CS 训练脚本
+├── test.py                                 # L2CS 测试脚本
+├── tf_easy_calibration_by_trained_model.py # 旧版 Easy 校准（独立脚本）
+├── tf_hard_calibration_by_trained_model.py # 旧版 Hard 校准（独立脚本）
 ├── README.md
+├── EXT_JSONL_README.md
 └── BATCH_PROCESSING_README.md
 ```
 
@@ -57,7 +65,7 @@ FatigueGuard-Preprocess/
 
 ### 3.1 第一步：单帧/逐帧 gaze 提取
 
-脚本：[FatigueGuard_preprocess_single.py](./FatigueGuard_preprocess_single.py)
+脚本：[scripts/FatigueGuard_preprocess_single.py](./scripts/FatigueGuard_preprocess_single.py)
 
 输入：
 
@@ -82,7 +90,7 @@ FatigueGuard-Preprocess/
 
 ### 3.2 第二步：批量处理数据集
 
-脚本：[FatigueGuard_preprocess_batch.py](./FatigueGuard_preprocess_batch.py)
+脚本：[scripts/FatigueGuard_preprocess_batch.py](./scripts/FatigueGuard_preprocess_batch.py)
 
 该脚本会自动扫描 FatigueGuard 数据集，逐个处理：
 
@@ -95,7 +103,7 @@ FatigueGuard-Preprocess/
 
 ### 3.3 第三步：TensorFlow 校准
 
-脚本：[tf_calibrate_jsonl_batch.py](./tf_calibrate_jsonl_batch.py)
+脚本：[scripts/tf_calibrate_jsonl_batch.py](./scripts/tf_calibrate_jsonl_batch.py)
 
 这一步会读取第二步生成的 `jsonl`，并使用已经训练好的 TensorFlow 校准模型修正估计点与真实目标点之间的偏差。
 
@@ -202,7 +210,7 @@ FatigueGuard-Preprocess/
 
 ## 5 主要脚本说明
 
-### 5.1 `FatigueGuard_preprocess_single.py`
+### 5.1 `scripts/FatigueGuard_preprocess_single.py`
 
 功能：
 
@@ -225,10 +233,10 @@ FatigueGuard-Preprocess/
 示例：
 
 ```bash
-python FatigueGuard_preprocess_single.py --input path/to/training_video.mp4 --jsonl output/sample.jsonl --mode sfm --camera_data_dir ./camera_data
+python scripts/FatigueGuard_preprocess_single.py --input path/to/training_video.mp4 --jsonl output/sample.jsonl --mode sfm --camera_data_dir ./camera_data
 ```
 
-### 5.2 `FatigueGuard_preprocess_batch.py`
+### 5.2 `scripts/FatigueGuard_preprocess_batch.py`
 
 功能：
 
@@ -253,10 +261,10 @@ python FatigueGuard_preprocess_single.py --input path/to/training_video.mp4 --js
 示例：
 
 ```bash
-python FatigueGuard_preprocess_batch.py --data_root D:/data/FatigueGuard --output_dir D:/data/FatigueGuard_json  --device cuda:0  --weights models/L2CSNet_gaze360.pkl
+python scripts/FatigueGuard_preprocess_batch.py --data_root D:/data/FatigueGuard --output_dir D:/data/FatigueGuard_json  --device cuda:0  --weights models/L2CSNet_gaze360.pkl
 ```
 
-### 5.3 `tf_calibrate_jsonl_batch.py`
+### 5.3 `scripts/tf_calibrate_jsonl_batch.py`
 
 功能：
 
@@ -275,8 +283,35 @@ python FatigueGuard_preprocess_batch.py --data_root D:/data/FatigueGuard --outpu
 示例：
 
 ```bash
-python tf_calibrate_jsonl_batch.py --input_path D:/data/FatigueGuard_jsonl --output_dir D:/data/FatigueGuard_jsonl_calibrated
+python scripts/tf_calibrate_jsonl_batch.py --input_path D:/data/FatigueGuard_jsonl --output_dir D:/data/FatigueGuard_jsonl_calibrated
 ```
+
+### 5.4 `scripts/ext_jsonl_to_screen.py`
+
+功能：
+
+- 将外部方法生成的 JSONL（含 `pitch_yaw_rad`）通过校准矩阵映射到屏幕坐标
+- 自动查找对应受试者的校准矩阵和目标点文件
+- 输出符合 FatigueGuard 格式的 JSONL
+
+详细说明见 [EXT_JSONL_README.md](./EXT_JSONL_README.md)。
+
+### 5.5 `scripts/ext_jsonl_tf_calibrate.py`
+
+功能：
+
+- 对屏幕映射后的 JSONL 施加 TensorFlow 校准网络
+- 输出校准后的坐标及校准前后误差
+
+详细说明见 [EXT_JSONL_README.md](./EXT_JSONL_README.md)。
+
+### 5.6 `scripts/draw_gaze_on_video.py`
+
+功能：
+
+- 在原始视频上逐帧绘制注视视线方向
+- 可视化人脸框、面部关键点、注视箭头和屏幕注视点
+- 输出带标注的视频文件
 
 ## 6 数据集目录约定
 
@@ -484,13 +519,29 @@ OpenCV ... error: (-215:Assertion failed) !ssize.empty() in function 'resize'
 
 说明某一帧的人脸或眼部裁剪为空。当前版本已经加入空裁剪保护，正常情况下会自动跳过这类帧。
 
+### 10.6 运行脚本时提示模块找不到
+
+所有主要脚本已移至 `scripts/` 目录。运行时需在**项目根目录**下执行，例如：
+
+```bash
+# 正确：在项目根目录运行
+python scripts/FatigueGuard_preprocess_batch.py --data_root ...
+
+# 错误：进入 scripts 目录后运行
+cd scripts && python FatigueGuard_preprocess_batch.py ...  # 可能导致路径错误
+```
+
+脚本内部已自动处理跨目录导入问题，但相对路径参数（如 `--camera_data_dir ./camera_data`、`--weights models/...`）仍然基于当前工作目录解析。
+
 ## 11 推荐使用顺序
 
 建议按下面顺序跑完整流程：
 
-1. 先运行 `FatigueGuard_preprocess_single.py`，确认单个视频能正常输出。
-2. 再运行 `FatigueGuard_preprocess_batch.py`，批量生成基础 `jsonl`。
-3. 最后运行 `tf_calibrate_jsonl_batch.py`，生成带校准点的新 `jsonl`。
+1. 先运行 `scripts/FatigueGuard_preprocess_single.py`，确认单个视频能正常输出。
+2. 再运行 `scripts/FatigueGuard_preprocess_batch.py`，批量生成基础 `jsonl`。
+3. 最后运行 `scripts/tf_calibrate_jsonl_batch.py`，生成带校准点的新 `jsonl`。
+
+如需对接外部方法生成的 JSONL，参考 [EXT_JSONL_README.md](./EXT_JSONL_README.md)。
 
 ## 12 说明
 

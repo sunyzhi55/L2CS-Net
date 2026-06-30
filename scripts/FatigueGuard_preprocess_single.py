@@ -1,3 +1,9 @@
+import sys, os as _os
+_SCRIPT_DIR = _os.path.dirname(_os.path.abspath(__file__))
+_PROJ_ROOT = _os.path.dirname(_SCRIPT_DIR)
+sys.path.insert(0, _PROJ_ROOT)
+sys.path.insert(0, _SCRIPT_DIR)
+
 import scipy.optimize as opt
 import cv2
 import os

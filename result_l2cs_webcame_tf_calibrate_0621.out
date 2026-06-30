@@ -1,0 +1,192 @@
+WARNING:tensorflow:From tf_calibrate_jsonl_batch.py:126: dense (from tensorflow.python.layers.core) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.Dense instead.
+WARNING:tensorflow:From /root/autodl-tmp/conda/envs/tf_calibrate/lib/python3.7/site-packages/tensorflow_core/python/layers/core.py:187: Layer.apply (from tensorflow.python.keras.engine.base_layer) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `layer.__call__` method instead.
+2026-06-21 22:52:48.025831: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+2026-06-21 22:52:48.186616: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties: 
+name: NVIDIA GeForce RTX 4090 major: 8 minor: 9 memoryClockRate(GHz): 2.52
+pciBusID: 0000:1b:00.0
+2026-06-21 22:52:48.188966: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 1 with properties: 
+name: NVIDIA GeForce RTX 4090 major: 8 minor: 9 memoryClockRate(GHz): 2.52
+pciBusID: 0000:39:00.0
+2026-06-21 22:52:48.189040: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcudart.so.10.0'; dlerror: libcudart.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189071: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcublas.so.10.0'; dlerror: libcublas.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189096: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcufft.so.10.0'; dlerror: libcufft.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189121: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcurand.so.10.0'; dlerror: libcurand.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189145: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcusolver.so.10.0'; dlerror: libcusolver.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189169: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcusparse.so.10.0'; dlerror: libcusparse.so.10.0: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189193: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcudnn.so.7'; dlerror: libcudnn.so.7: cannot open shared object file: No such file or directory
+2026-06-21 22:52:48.189197: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1641] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+2026-06-21 22:52:48.189436: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2026-06-21 22:52:48.218417: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2000000000 Hz
+2026-06-21 22:52:48.225667: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x4287380 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2026-06-21 22:52:48.225694: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2026-06-21 22:52:48.429914: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x3f49990 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2026-06-21 22:52:48.429974: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2026-06-21 22:52:48.429985: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (1): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2026-06-21 22:52:48.430532: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1159] Device interconnect StreamExecutor with strength 1 edge matrix:
+2026-06-21 22:52:48.430562: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1165]      
+[EASY] 01_easy_alert.jsonl | n=9007 | before=275.831603 px | after=235.826110 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/01_easy_alert.jsonl
+[EASY] 01_easy_sleepy.jsonl | n=9005 | before=618.339059 px | after=384.403618 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/01_easy_sleepy.jsonl
+[HARD] 01_hard_alert.jsonl | n=9004 | before=195.054269 px | after=175.420128 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/01_hard_alert.jsonl
+[HARD] 01_hard_sleepy.jsonl | n=9004 | before=451.431234 px | after=264.621569 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/01_hard_sleepy.jsonl
+[EASY] 02_easy_alert.jsonl | n=9000 | before=335.459741 px | after=291.284030 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/02_easy_alert.jsonl
+[EASY] 02_easy_sleepy.jsonl | n=8976 | before=353.668022 px | after=269.318328 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/02_easy_sleepy.jsonl
+[HARD] 02_hard_alert.jsonl | n=8973 | before=219.173448 px | after=200.622525 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/02_hard_alert.jsonl
+[HARD] 02_hard_sleepy.jsonl | n=9010 | before=311.456560 px | after=203.453926 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/02_hard_sleepy.jsonl
+[EASY] 03_easy_alert.jsonl | n=8998 | before=302.320280 px | after=200.128496 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/03_easy_alert.jsonl
+[EASY] 03_easy_sleepy.jsonl | n=8980 | before=488.292085 px | after=288.442048 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/03_easy_sleepy.jsonl
+[HARD] 03_hard_alert.jsonl | n=8976 | before=198.967907 px | after=170.408929 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/03_hard_alert.jsonl
+[HARD] 03_hard_sleepy.jsonl | n=8994 | before=423.661885 px | after=208.604926 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/03_hard_sleepy.jsonl
+[EASY] 04_easy_alert.jsonl | n=9001 | before=506.875745 px | after=198.961809 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/04_easy_alert.jsonl
+[EASY] 04_easy_sleepy.jsonl | n=8974 | before=668.070559 px | after=345.855554 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/04_easy_sleepy.jsonl
+[HARD] 04_hard_alert.jsonl | n=8980 | before=553.089018 px | after=227.749896 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/04_hard_alert.jsonl
+[HARD] 04_hard_sleepy.jsonl | n=8972 | before=555.489451 px | after=240.209864 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/04_hard_sleepy.jsonl
+[EASY] 05_easy_alert.jsonl | n=9009 | before=439.339091 px | after=258.562271 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/05_easy_alert.jsonl
+[EASY] 05_easy_sleepy.jsonl | n=8977 | before=783.011926 px | after=356.999022 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/05_easy_sleepy.jsonl
+[HARD] 05_hard_alert.jsonl | n=8966 | before=430.587082 px | after=209.854532 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/05_hard_alert.jsonl
+[HARD] 05_hard_sleepy.jsonl | n=9002 | before=724.356842 px | after=285.862484 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/05_hard_sleepy.jsonl
+[EASY] 06_easy_alert.jsonl | n=9067 | before=520.702458 px | after=393.566801 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/06_easy_alert.jsonl
+[EASY] 06_easy_sleepy.jsonl | n=9065 | before=752.060085 px | after=514.354665 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/06_easy_sleepy.jsonl
+[HARD] 06_hard_alert.jsonl | n=9161 | before=329.508694 px | after=244.454599 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/06_hard_alert.jsonl
+[HARD] 06_hard_sleepy.jsonl | n=9162 | before=522.074108 px | after=305.261004 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/06_hard_sleepy.jsonl
+[EASY] 07_easy_alert.jsonl | n=9063 | before=758.455073 px | after=332.885466 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/07_easy_alert.jsonl
+[EASY] 07_easy_sleepy.jsonl | n=9070 | before=835.923965 px | after=443.825326 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/07_easy_sleepy.jsonl
+[HARD] 07_hard_alert.jsonl | n=9161 | before=543.129787 px | after=213.760553 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/07_hard_alert.jsonl
+[HARD] 07_hard_sleepy.jsonl | n=9168 | before=660.737798 px | after=326.553885 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/07_hard_sleepy.jsonl
+[EASY] 08_easy_alert.jsonl | n=9064 | before=230.146004 px | after=253.998619 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/08_easy_alert.jsonl
+[EASY] 08_easy_sleepy.jsonl | n=9065 | before=323.245834 px | after=269.750306 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/08_easy_sleepy.jsonl
+[HARD] 08_hard_alert.jsonl | n=9152 | before=163.504212 px | after=186.723217 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/08_hard_alert.jsonl
+[HARD] 08_hard_sleepy.jsonl | n=9146 | before=293.069413 px | after=224.643856 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/08_hard_sleepy.jsonl
+[EASY] 09_easy_alert.jsonl | n=9068 | before=194.087095 px | after=200.441453 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/09_easy_alert.jsonl
+[EASY] 09_easy_sleepy.jsonl | n=9068 | before=515.969321 px | after=367.947747 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/09_easy_sleepy.jsonl
+[HARD] 09_hard_alert.jsonl | n=9158 | before=187.968186 px | after=168.198614 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/09_hard_alert.jsonl
+[HARD] 09_hard_sleepy.jsonl | n=9154 | before=497.612866 px | after=263.183165 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/09_hard_sleepy.jsonl
+[EASY] 10_easy_alert.jsonl | n=9066 | before=292.979427 px | after=249.752924 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/10_easy_alert.jsonl
+[EASY] 10_easy_sleepy.jsonl | n=9062 | before=343.321807 px | after=261.948512 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/10_easy_sleepy.jsonl
+[HARD] 10_hard_alert.jsonl | n=9170 | before=230.265157 px | after=186.660128 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/10_hard_alert.jsonl
+[HARD] 10_hard_sleepy.jsonl | n=9153 | before=289.680434 px | after=200.387041 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/10_hard_sleepy.jsonl
+[EASY] 11_easy_alert.jsonl | n=9067 | before=471.661595 px | after=277.037939 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/11_easy_alert.jsonl
+[EASY] 11_easy_sleepy.jsonl | n=9069 | before=599.074434 px | after=362.356706 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/11_easy_sleepy.jsonl
+[HARD] 11_hard_alert.jsonl | n=9162 | before=375.199892 px | after=195.407109 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/11_hard_alert.jsonl
+[HARD] 11_hard_sleepy.jsonl | n=9156 | before=534.923125 px | after=275.759225 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/11_hard_sleepy.jsonl
+[EASY] 12_easy_alert.jsonl | n=9051 | before=435.757698 px | after=221.552566 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/12_easy_alert.jsonl
+[EASY] 12_easy_sleepy.jsonl | n=9055 | before=594.090907 px | after=323.364556 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/12_easy_sleepy.jsonl
+[HARD] 12_hard_alert.jsonl | n=9150 | before=334.779568 px | after=180.398984 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/12_hard_alert.jsonl
+[HARD] 12_hard_sleepy.jsonl | n=9145 | before=420.794536 px | after=217.713510 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/12_hard_sleepy.jsonl
+[EASY] 13_easy_alert.jsonl | n=9053 | before=241.133953 px | after=218.605286 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/13_easy_alert.jsonl
+[EASY] 13_easy_sleepy.jsonl | n=9052 | before=445.538484 px | after=322.912823 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/13_easy_sleepy.jsonl
+[HARD] 13_hard_alert.jsonl | n=9151 | before=219.257060 px | after=176.855511 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/13_hard_alert.jsonl
+[HARD] 13_hard_sleepy.jsonl | n=9153 | before=425.399827 px | after=242.497214 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/13_hard_sleepy.jsonl
+[EASY] 14_easy_alert.jsonl | n=9061 | before=220.489519 px | after=222.916627 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/14_easy_alert.jsonl
+[EASY] 14_easy_sleepy.jsonl | n=9059 | before=419.514021 px | after=333.349300 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/14_easy_sleepy.jsonl
+[HARD] 14_hard_alert.jsonl | n=9136 | before=148.500612 px | after=186.757881 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/14_hard_alert.jsonl
+[HARD] 14_hard_sleepy.jsonl | n=9153 | before=377.755219 px | after=230.556746 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/14_hard_sleepy.jsonl
+[EASY] 15_easy_alert.jsonl | n=9060 | before=461.253439 px | after=237.583103 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/15_easy_alert.jsonl
+[EASY] 15_easy_sleepy.jsonl | n=9051 | before=591.409063 px | after=364.525244 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/15_easy_sleepy.jsonl
+[HARD] 15_hard_alert.jsonl | n=9148 | before=362.041121 px | after=173.867202 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/15_hard_alert.jsonl
+[HARD] 15_hard_sleepy.jsonl | n=9149 | before=555.895295 px | after=284.496648 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/15_hard_sleepy.jsonl
+[EASY] 16_easy_alert.jsonl | n=9062 | before=408.133172 px | after=195.710750 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/16_easy_alert.jsonl
+[EASY] 16_easy_sleepy.jsonl | n=9068 | before=592.310172 px | after=337.125411 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/16_easy_sleepy.jsonl
+[HARD] 16_hard_alert.jsonl | n=9134 | before=301.089009 px | after=174.447882 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/16_hard_alert.jsonl
+[HARD] 16_hard_sleepy.jsonl | n=9145 | before=430.563206 px | after=241.201952 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/16_hard_sleepy.jsonl
+[EASY] 17_easy_alert.jsonl | n=9052 | before=443.895284 px | after=318.892595 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/17_easy_alert.jsonl
+[EASY] 17_easy_sleepy.jsonl | n=9058 | before=490.909853 px | after=363.570406 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/17_easy_sleepy.jsonl
+[HARD] 17_hard_alert.jsonl | n=9149 | before=257.761269 px | after=212.291546 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/17_hard_alert.jsonl
+[HARD] 17_hard_sleepy.jsonl | n=9156 | before=385.711507 px | after=232.013265 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/17_hard_sleepy.jsonl
+[EASY] 18_easy_alert.jsonl | n=9091 | before=498.548072 px | after=367.179681 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/18_easy_alert.jsonl
+[EASY] 18_easy_sleepy.jsonl | n=9087 | before=698.155952 px | after=517.510821 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/18_easy_sleepy.jsonl
+[HARD] 18_hard_alert.jsonl | n=9183 | before=286.485057 px | after=224.317255 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/18_hard_alert.jsonl
+[HARD] 18_hard_sleepy.jsonl | n=9172 | before=365.437811 px | after=270.975483 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/18_hard_sleepy.jsonl
+[EASY] 19_easy_alert.jsonl | n=9086 | before=280.378759 px | after=205.058260 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/19_easy_alert.jsonl
+[EASY] 19_easy_sleepy.jsonl | n=9081 | before=353.458844 px | after=257.613163 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/19_easy_sleepy.jsonl
+[HARD] 19_hard_alert.jsonl | n=9186 | before=230.325789 px | after=173.692519 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/19_hard_alert.jsonl
+[HARD] 19_hard_sleepy.jsonl | n=9179 | before=227.715066 px | after=173.081746 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/19_hard_sleepy.jsonl
+[EASY] 20_easy_alert.jsonl | n=9079 | before=719.722340 px | after=327.435239 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/20_easy_alert.jsonl
+[EASY] 20_easy_sleepy.jsonl | n=9097 | before=748.480143 px | after=397.755091 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/20_easy_sleepy.jsonl
+[HARD] 20_hard_alert.jsonl | n=9171 | before=438.889715 px | after=189.288589 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/20_hard_alert.jsonl
+[HARD] 20_hard_sleepy.jsonl | n=9194 | before=617.513463 px | after=251.826941 px
+  -> /root/autodl-tmp/shenxy/Data/Process0620_calibrate/20_hard_sleepy.jsonl
+[OVERALL] n=726562 | before=428.875156 px | after=263.683272 px
