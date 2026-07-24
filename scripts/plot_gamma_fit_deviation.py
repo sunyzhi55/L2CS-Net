@@ -3,10 +3,11 @@
 """
 Distribution fitting comparison for gaze deviation data.
 
-Fits Gamma, Gaussian, and Lognormal distributions to deviation_px values
-from calibrated JSONL files.  Produces one figure per field, each showing:
-  - histogram with KDE overlay
-  - three fitted PDF curves (Gamma / Gaussian / Lognormal)
+Fits Gamma, Gaussian, Lognormal, Weibull, and Rayleigh distributions to
+deviation_px values from calibrated JSONL files.  Produces one figure per
+field, each showing:
+  - histogram
+  - five fitted PDF curves (Gamma / Gaussian / Lognormal / Weibull / Rayleigh)
   - goodness-of-fit metrics (AIC, BIC, KS p-value) below the plot
 
 Two figures are produced by default:
@@ -36,8 +37,15 @@ FIELD_AFTER = "deviation_px_after_calibrate"
 STATE_CHOICES = ("all", "alert", "sleepy")
 FILENAME_RE = re.compile(r"^\d+_(easy|hard)_(alert|sleepy)$", re.IGNORECASE)
 
-DIST_NAMES: Tuple[str, ...] = ("Gamma", "Gaussian", "Lognormal")
-DIST_COLORS = {"Gamma": "#e74c3c", "Gaussian": "#3498db", "Lognormal": "#2ecc71"}
+# DIST_NAMES: Tuple[str, ...] = ("Gamma", "Gaussian", "Lognormal", "Weibull", "Rayleigh")
+DIST_NAMES: Tuple[str, ...] = ("Gamma", "Lognormal", "Weibull", "Rayleigh")
+DIST_COLORS = {
+    "Gamma": "#e74c3c",
+    # "Gaussian": "#3498db",
+    "Lognormal": "#2ecc71",
+    "Weibull": "#9b59b6",
+    "Rayleigh": "#3498db",
+}
 
 
 def _require_scipy_stats():
@@ -86,6 +94,10 @@ class DistributionFitResult:
             return (self.params["shape"], self.params["loc"], self.params["scale"])
         if self.family == "gaussian":
             return (self.params["mu"], self.params["sigma"])
+        if self.family == "weibull":
+            return (self.params["c"], self.params["loc"], self.params["scale"])
+        if self.family == "rayleigh":
+            return (self.params["loc"], self.params["scale"])
         return (self.params["s"], self.params["loc"], self.params["scale"])
 
 
@@ -171,24 +183,41 @@ def fit_gamma_distribution(values: Sequence[float]) -> GammaFitResult:
 def _fit_single(stats, data: np.ndarray, name: str) -> DistributionFitResult:
     """Fit one distribution, compute LogLik / AIC / BIC / KS."""
     n = data.size
-    k = 2
 
     if name == "Gamma":
+        k = 2  # shape, scale  (loc fixed to 0)
         a, _, s = stats.gamma.fit(data, floc=0.0)
         ll = float(np.sum(stats.gamma.logpdf(data, a, 0.0, s)))
-        ks, _ = stats.kstest(data, "gamma", args=(a, 0.0, s))
-        pv = 0.061
+        ks, pv = stats.kstest(data, "gamma", args=(a, 0.0, s))
         params = {"shape": float(a), "loc": 0.0, "scale": float(s)}
     elif name == "Gaussian":
+        k = 2  # mu, sigma
         mu, sig = stats.norm.fit(data)
         ll = float(np.sum(stats.norm.logpdf(data, mu, sig)))
         ks, pv = stats.kstest(data, "norm", args=(mu, sig))
         params = {"mu": float(mu), "sigma": float(sig)}
-    else:  # Lognormal
+    elif name == "Lognormal":
+        k = 2  # s, scale  (loc fixed to 0)
         s, _, sc = stats.lognorm.fit(data, floc=0.0)
         ll = float(np.sum(stats.lognorm.logpdf(data, s, 0.0, sc)))
         ks, pv = stats.kstest(data, "lognorm", args=(s, 0.0, sc))
         params = {"s": float(s), "loc": 0.0, "scale": float(sc)}
+    elif name == "Weibull":
+        # scipy.stats.weibull_min: shape c, loc, scale.  Fix loc=0.
+        k = 2  # c, scale
+        c, _, sc = stats.weibull_min.fit(data, floc=0.0)
+        ll = float(np.sum(stats.weibull_min.logpdf(data, c, 0.0, sc)))
+        ks, pv = stats.kstest(data, "weibull_min", args=(c, 0.0, sc))
+        params = {"c": float(c), "loc": 0.0, "scale": float(sc)}
+    elif name == "Rayleigh":
+        # scipy.stats.rayleigh: loc, scale.  Fix loc=0.
+        k = 1  # scale only
+        _, sc = stats.rayleigh.fit(data, floc=0.0)
+        ll = float(np.sum(stats.rayleigh.logpdf(data, 0.0, sc)))
+        ks, pv = stats.kstest(data, "rayleigh", args=(0.0, sc))
+        params = {"loc": 0.0, "scale": float(sc)}
+    else:
+        raise ValueError(f"Unknown distribution: {name}")
 
     aic = 2 * k - 2 * ll
     bic = k * math.log(n) - 2 * ll
@@ -202,7 +231,7 @@ def _fit_single(stats, data: np.ndarray, name: str) -> DistributionFitResult:
 def fit_all_distributions(
     values: Sequence[float],
 ) -> Dict[str, DistributionFitResult]:
-    """Fit Gamma, Gaussian, Lognormal and return comparison metrics."""
+    """Fit Gamma, Gaussian, Lognormal, Weibull, Rayleigh and return metrics."""
     stats = _require_scipy_stats()
     data = np.asarray(values, dtype=np.float64)
     data = data[np.isfinite(data) & (data > 0.0)]
@@ -220,6 +249,10 @@ def _pdf_on_grid(x, name, result, stats):
         return stats.gamma.pdf(x, *result.scipy_args)
     if name == "Gaussian":
         return stats.norm.pdf(x, *result.scipy_args)
+    if name == "Weibull":
+        return stats.weibull_min.pdf(x, *result.scipy_args)
+    if name == "Rayleigh":
+        return stats.rayleigh.pdf(x, *result.scipy_args)
     return stats.lognorm.pdf(x, *result.scipy_args)
 
 
@@ -237,8 +270,8 @@ def _fmt_legend_label(r: DistributionFitResult) -> str:
         pv = f"p={r.p_value:.3f}"
     return (
         f"{r.name}  "
-        # f"(AIC={r.aic:,.0f}  BIC={r.bic:,.0f}  "
-        f"KS={r.ks_statistic:.3f}  {pv})"
+        f"(AIC={r.aic:,.0f}  BIC={r.bic:,.0f}  "
+        f"KS={r.ks_statistic:.3f})"
     )
 
 
@@ -423,8 +456,9 @@ def _parse_bins(value: str):
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Fit Gamma / Gaussian / Lognormal to gaze deviation data "
-                    "and produce comparison figures with AIC, BIC, KS metrics."
+        description="Fit Gamma / Gaussian / Lognormal / Weibull / Rayleigh to "
+                    "gaze deviation data and produce comparison figures with "
+                    "AIC, BIC, KS metrics."
     )
     p.add_argument(
         "--input_path",
