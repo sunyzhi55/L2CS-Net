@@ -82,6 +82,7 @@ class GazeToPoint:
         self.sfm = SFM(directory, args)
         self.camera_matrix, self.dist_coeffs = gcv.ReadCameraCalibrationData(args.camera_data_dir)
         self.inv_camera_matrix = np.linalg.inv(self.camera_matrix)
+        # print(f"STransG: \n{self.STransG}\nStG: \n{self.StG}\nscaleWtG: {self.scaleWtG}\nSTransW: \n{self.STransW}\nStW: \n{self.StW}")
 
     @staticmethod
     def _frame_timestamp_seconds(cap, frame_idx: int) -> float:

@@ -213,6 +213,22 @@ def _infer_task(record: Dict[str, Any], source_path: Path) -> str:
     raise ValueError(f"Cannot infer task type for {source_path}")
 
 
+def _infer_state(source_path: Path) -> str:
+    """从文件名推断疲劳状态：alert / sleepy。
+
+    文件名形如 `[id]_[difficulty]_[task].jsonl`（如 `01_easy_alert.jsonl`、
+    `09_hard_sleepy1.jsonl`）。task 含 `sleep` 视为 sleepy，含 `alert` 视为 alert。
+    """
+    name = source_path.name.lower()
+    if "sleep" in name:
+        return "sleepy"
+    if "alert" in name:
+        return "alert"
+    # 无法判断时默认按 alert 处理（即参与校准），并给出告警
+    print(f"[WARN] 无法从文件名推断状态，按 alert 处理: {source_path.name}")
+    return "alert"
+
+
 def _format_easy_record(
     record: Dict[str, Any],
     calibrated_xy: Optional[Sequence[float]],
@@ -290,7 +306,14 @@ def _calibrate_records(
     records: List[Dict[str, Any]],
     task: str,
     model: TFCalibrationModel,
+    apply_model: bool = True,
 ) -> Tuple[List[Dict[str, Any]], ErrorStats]:
+    """对一批记录做 TF 校准。
+
+    apply_model=True 时调用 TF 模型修正估计点；apply_model=False 时为直通
+    （calibrated = predicted，校准前后误差相等），用于 sleepy 等不需要
+    TF 校准的状态——输出字段仍保持一致，便于下游统一读取。
+    """
     stats = ErrorStats()
     valid_points: List[np.ndarray] = []
     valid_indices: List[int] = []
@@ -303,7 +326,11 @@ def _calibrate_records(
 
     calibrated_map: Dict[int, np.ndarray] = {}
     if valid_points:
-        calibrated_batch = model.predict(np.stack(valid_points, axis=0))
+        if apply_model:
+            calibrated_batch = model.predict(np.stack(valid_points, axis=0))
+        else:
+            # 直通：校准点 = 原始估计点（不调用模型）
+            calibrated_batch = valid_points
         for idx, calibrated_xy in zip(valid_indices, calibrated_batch):
             calibrated_map[idx] = np.asarray(calibrated_xy, dtype=np.float32)
 
@@ -338,6 +365,11 @@ def main() -> None:
     parser.add_argument("--input_path", default="/root/autodl-tmp/shenxy/Data/Process0630", help="Input JSONL file or directory.")
     parser.add_argument("--output_dir", default="/root/autodl-tmp/shenxy/Data/Process0630_tfCali", help="Directory for calibrated JSONL files.")
     parser.add_argument("--model_ckpt", default=str(MODEL_CKPT_DEFAULT), help="TensorFlow checkpoint path.")
+    parser.add_argument(
+        "--calibrate_sleepy",
+        action="store_true",
+        help="默认不校准 sleepy 状态（直通，calibrated=predicted）；加此开关则对 sleepy 也跑模型。",
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input_path)
@@ -358,7 +390,10 @@ def main() -> None:
                 continue
 
             task = _infer_task(records[0], source_file)
-            calibrated_records, stats = _calibrate_records(records, task, model)
+            state = _infer_state(source_file)
+            # 仅 alert 状态使用 TF 模型校准；sleepy 直通（除非显式要求校准）
+            apply_model = (state != "sleepy") or bool(args.calibrate_sleepy)
+            calibrated_records, stats = _calibrate_records(records, task, model, apply_model=apply_model)
 
             out_path = _output_path_for(source_file, input_path, output_dir)
             _dump_jsonl(out_path, calibrated_records)
@@ -367,9 +402,10 @@ def main() -> None:
             overall_stats.sum_before += stats.sum_before
             overall_stats.sum_after += stats.sum_after
 
+            mode_tag = "CALI" if apply_model else "PASS"
             print(
-                f"[{task.upper()}] {source_file.name} | "
-                f"n={stats.count} | "
+                f"[{task.upper()}-{state.upper()}] {source_file.name} | "
+                f"mode={mode_tag} | n={stats.count} | "
                 f"before={stats.mean_before:.6f} px | "
                 f"after={stats.mean_after:.6f} px"
             )

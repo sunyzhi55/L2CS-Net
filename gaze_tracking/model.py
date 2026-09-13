@@ -558,10 +558,9 @@ class EyeModel:
                 print("Warning: More than one face detected! Using first face detected!")
             face_box = face_boxes[0]
             face = self.get_crop_image(frame, face_box)
-            if face is None or face.size == 0:
-                return np.zeros((3, 35))
-            landmarks = self.facial_landmark_35.predict(face)   # shape 35,2
-        
+            landmarks = self.facial_landmark_35.predict(face)  # shape 35,2
+            
+
             xmin, ymin, xmax, ymax = face_box
             points = np.zeros_like(landmarks)
             for idx, pos in enumerate(landmarks):
