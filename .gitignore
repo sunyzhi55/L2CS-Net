@@ -143,3 +143,5 @@ dmypy.json
 
 # Ignore other files
 my.secrets
+
+*.docx

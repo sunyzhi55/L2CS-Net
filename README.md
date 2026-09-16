@@ -42,6 +42,8 @@ FatigueGuard-Preprocess/
 │   ├── tf_calibrate_jsonl_batch.py         # 第三步：TensorFlow 校准
 │   ├── ext_jsonl_to_screen.py              # 外部 JSONL 屏幕映射
 │   ├── ext_jsonl_tf_calibrate.py           # 外部 JSONL TF 校准
+│   ├── eye_metrics_core.py                 # 眼睑指标计算核心（纯 numpy，可离线单测）
+│   ├── extract_eye_metrics_batch.py        # ★ 增量管线：PERCLOS / 眨眼率 / 长闭眼提取
 │   └── draw_gaze_on_video.py              # 注视方向可视化
 ├── l2cs/                                   # L2CS gaze 推理
 ├── gaze_tracking/                          # OpenVINO 人脸/关键点/眼部特征
@@ -119,6 +121,20 @@ FatigueGuard-Preprocess/
 - 校准后平均误差
 
 每一帧的校准前/后误差也会写入对应的 `jsonl` 记录中。`deviation_px_before_calibrate` 和 `deviation_px_after_calibrate` 均为像素欧氏距离；hard 任务会取估计点到 `target_centers_xy_px` 中最近目标点的距离。
+
+### 3.4 增量管线：眼睑闭合指标（独立，不汇入上面的 jsonl）
+
+脚本：[scripts/extract_eye_metrics_batch.py](./scripts/extract_eye_metrics_batch.py)
+
+为研究方案 §12.2「状态操纵检验」提供独立客观通道：从同一批 30 fps RGB 摄像头视频中提取 **PERCLOS、眨眼率、长闭眼时长**。
+
+它与上面三步**完全并行**：不读写逐帧 gaze `jsonl`，不经过 L2CS / OpenVINO / SFM / TF 校准，跑在独立的 conda 环境里（mediapipe 与 `openvino==2022.3.0` / `numpy==1.23.4` 冲突），输出按 `(id, difficulty, state)` 三元组与其它结果汇合。
+
+```bash
+python scripts/extract_eye_metrics_batch.py --root <完整视频根目录> --dry_run 6   # 先做可行性裁决
+```
+
+运行步骤、输出列含义、本次实测结果、已知局限与下游接入方法见 **[EYE_METRICS_README.md](./EYE_METRICS_README.md)**。
 
 ## 4 输出格式
 
