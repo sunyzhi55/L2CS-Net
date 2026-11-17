@@ -44,6 +44,7 @@ FatigueGuard-Preprocess/
 │   ├── ext_jsonl_tf_calibrate.py           # 外部 JSONL TF 校准
 │   ├── eye_metrics_core.py                 # 眼睑指标计算核心（纯 numpy，可离线单测）
 │   ├── extract_eye_metrics_batch.py        # ★ 增量管线：PERCLOS / 眨眼率 / 长闭眼提取
+│   ├── calibration_session_error.py        # ★ 补充实验：alert vs fatigue 四点校准误差对比
 │   └── draw_gaze_on_video.py              # 注视方向可视化
 ├── l2cs/                                   # L2CS gaze 推理
 ├── gaze_tracking/                          # OpenVINO 人脸/关键点/眼部特征
@@ -60,6 +61,7 @@ FatigueGuard-Preprocess/
 ├── tf_hard_calibration_by_trained_model.py # 旧版 Hard 校准（独立脚本）
 ├── README.md
 ├── EXT_JSONL_README.md
+├── CALIBRATION_SESSION_README.md
 └── BATCH_PROCESSING_README.md
 ```
 
@@ -135,6 +137,22 @@ python scripts/extract_eye_metrics_batch.py --root <完整视频根目录> --dry
 ```
 
 运行步骤、输出列含义、本次实测结果、已知局限与下游接入方法见 **[EYE_METRICS_README.md](./EYE_METRICS_README.md)**。
+
+### 3.5 补充实验：alert vs fatigue 两次 session 的四点校准误差对比
+
+脚本：[scripts/calibration_session_error.py](./scripts/calibration_session_error.py)
+
+回应审稿意见 **Session confounding**（alert 与 fatigued 样本来自不同 session，校准等 session 因素可能与标签混淆；且不清楚校准是否按 session 重复执行）：
+
+- 按与 §6.1 完全相同的三级规则解析每个 `(subject, state, difficulty)` 实际使用的校准目录，自动检测 alert 与 sleepy 是否共享同一校准矩阵，直接回答"校准是否按 session 重复"；
+- 对每个 session 独立复算四点校准误差：复现 `homtransform.py` 原始口径（`Calibration.csv` 去离群 mean±1σ → 每校准点 median gaze → 经该 session 的 `STransG.npy` 映射到屏幕 → 与目标点求欧氏距离），输出 mean±SD（mm 与 px）；
+- 被试内配对统计：Shapiro-Wilk、配对 t 检验 + Cohen's dz + Δ 95%CI、Wilcoxon 符号秩，以及 TOST 等价检验（"无显著差异"≠"等价"）。
+
+```bash
+python scripts/calibration_session_error.py --data_root <数据集根目录> --output <输出目录>
+```
+
+仅依赖 numpy / pandas / scipy / matplotlib，无需 TensorFlow 与 GPU。方法口径、统计协议与文献、判读规则、已知限制见 **[CALIBRATION_SESSION_README.md](./CALIBRATION_SESSION_README.md)**。
 
 ## 4 输出格式
 
@@ -328,6 +346,32 @@ python scripts/tf_calibrate_jsonl_batch.py --input_path D:/data/FatigueGuard_jso
 - 在原始视频上逐帧绘制注视视线方向
 - 可视化人脸框、面部关键点、注视箭头和屏幕注视点
 - 输出带标注的视频文件
+
+### 5.7 `scripts/calibration_session_error.py`
+
+功能：
+
+- 解析每个 `(subject, state, difficulty)` 实际使用的校准目录，检测 alert / sleepy 是否共享校准矩阵
+- 复算每个 session 的四点校准误差（逐点误差 + mean±SD，mm 与 px）
+- 被试内配对统计检验（配对 t、Wilcoxon、TOST 等价检验）
+- 输出 `calibration_session_error.csv`、`calibration_session_error_summary.md`、`calibration_session_paired.png`
+
+常用参数：
+
+- `--data_root`：数据集根目录
+- `--output`：输出目录
+- `--subjects`：指定受试者 ID，例如 `01,02,03`
+- `--tost_margin_mm`：TOST 绝对等价边界（mm），默认 `5`
+- `--tost_margin_rel`：TOST 相对等价边界（占 alert 组均值比例），默认 `0.20`
+- `--no_figure`：不输出配图
+
+示例：
+
+```bash
+python scripts/calibration_session_error.py --data_root /root/autodl-tmp/shenxy/Data/DATA --output /root/autodl-tmp/shenxy/Data/calib_session_check
+```
+
+详细说明见 [CALIBRATION_SESSION_README.md](./CALIBRATION_SESSION_README.md)。
 
 ## 6 数据集目录约定
 
